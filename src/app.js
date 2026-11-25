@@ -1,11 +1,14 @@
+
 import express from "express";
 import dotenv from "dotenv";
 
 import { logger } from "./middleware/logger.js";
 import { notFound } from "./middleware/notFound.js";
 import { errorHandler } from "./middleware/errorHandler.js";
-import categoryRoutes  from "./routes/categoryRoutes.js";
+
+import categoryRoutes from "./routes/categoryRoutes.js";
 import brandRoutes from "./routes/brandRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 
 dotenv.config();
 
@@ -14,8 +17,6 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(logger);
-app.use("/categories", categoryRoutes);
-app.use("/brands", brandRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
@@ -23,6 +24,11 @@ app.get("/health", (req, res) => {
     status: "ok"
   });
 });
+
+// API Routes
+app.use("/categories", categoryRoutes);
+app.use("/brands", brandRoutes);
+app.use("/products", productRoutes);
 
 // 404
 app.use(notFound);
