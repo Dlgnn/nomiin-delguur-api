@@ -204,3 +204,45 @@ export const patchCategory = async (req, res, next) => {
     next(error);
   }
 };
+
+// DELETE /categories/:id
+export const deleteCategory = async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id < 1) {
+      return res.status(400).json({
+        message: "Invalid category ID."
+      });
+    }
+
+    const category = await prisma.category.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: { products: true }
+        }
+      }
+    });
+
+    if (!category) {
+      return res.status(404).json({
+        message: "Category not found."
+      });
+    }
+
+    if (category._count.products > 0) {
+      return res.status(409).json({
+        message: "Cannot delete a category that has products."
+      });
+    }
+
+    await prisma.category.delete({
+      where: { id }
+    });
+
+    return res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
