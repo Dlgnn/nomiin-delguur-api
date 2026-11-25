@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import { logger } from "./middleware/logger.js";
 import { notFound } from "./middleware/notFound.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import categoryRoutes  from "./routes/categoryRoutes.js";
+import brandRoutes from "./routes/brandRoutes.js";
 
 dotenv.config();
 
@@ -12,6 +14,8 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(logger);
+app.use("/categories", categoryRoutes);
+app.use("/brands", brandRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
