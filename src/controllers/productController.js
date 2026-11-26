@@ -24,6 +24,14 @@ const requiredFields = [
   "categoryId"
 ];
 
+const allowedSortFields = [
+  "id",
+  "title",
+  "price",
+  "publishedYear",
+  "createdAt"
+];
+
 // Validate Product request data
 const validateProductData = (data, partial = false) => {
   const fields = Object.keys(data);
@@ -219,10 +227,25 @@ const validateRelations = async (data) => {
 // GET /products
 export const getProducts = async (req, res, next) => {
   try {
-    const page = Number(req.query.page ?? 1);
-    const limit = Number(req.query.limit ?? 10);
+    const {
+      page: pageQuery,
+      limit: limitQuery,
+      search,
+      categoryId: categoryIdQuery,
+      brandId: brandIdQuery,
+      minPrice: minPriceQuery,
+      maxPrice: maxPriceQuery,
+      isAvailable: isAvailableQuery,
+      sortBy: sortByQuery,
+      order: orderQuery
+    } = req.query;
+
+    const page = Number(pageQuery ?? 1);
+    const limit = Number(limitQuery ?? 10);
 
     if (
+      (pageQuery !== undefined && typeof pageQuery !== "string") ||
+      (limitQuery !== undefined && typeof limitQuery !== "string") ||
       !Number.isInteger(page) ||
       page < 1 ||
       !Number.isInteger(limit) ||
@@ -234,13 +257,172 @@ export const getProducts = async (req, res, next) => {
       });
     }
 
+    if (
+      search !== undefined &&
+      (typeof search !== "string" || !search.trim())
+    ) {
+      return res.status(400).json({
+        message: "Search must be a non-empty string.",
+        field: "search"
+      });
+    }
+
+    let categoryId;
+    if (categoryIdQuery !== undefined) {
+      categoryId = Number(categoryIdQuery);
+
+      if (
+        typeof categoryIdQuery !== "string" ||
+        !Number.isInteger(categoryId) ||
+        categoryId < 1
+      ) {
+        return res.status(400).json({
+          message: "Category ID must be a positive integer.",
+          field: "categoryId"
+        });
+      }
+    }
+
+    let brandId;
+    if (brandIdQuery !== undefined) {
+      brandId = Number(brandIdQuery);
+
+      if (
+        typeof brandIdQuery !== "string" ||
+        !Number.isInteger(brandId) ||
+        brandId < 1
+      ) {
+        return res.status(400).json({
+          message: "Brand ID must be a positive integer.",
+          field: "brandId"
+        });
+      }
+    }
+
+    let minPrice;
+    if (minPriceQuery !== undefined) {
+      minPrice = Number(minPriceQuery);
+
+      if (
+        typeof minPriceQuery !== "string" ||
+        !Number.isFinite(minPrice) ||
+        minPrice < 0
+      ) {
+        return res.status(400).json({
+          message: "minPrice must be a non-negative number.",
+          field: "minPrice"
+        });
+      }
+    }
+
+    let maxPrice;
+    if (maxPriceQuery !== undefined) {
+      maxPrice = Number(maxPriceQuery);
+
+      if (
+        typeof maxPriceQuery !== "string" ||
+        !Number.isFinite(maxPrice) ||
+        maxPrice < 0
+      ) {
+        return res.status(400).json({
+          message: "maxPrice must be a non-negative number.",
+          field: "maxPrice"
+        });
+      }
+    }
+
+    if (
+      minPrice !== undefined &&
+      maxPrice !== undefined &&
+      minPrice > maxPrice
+    ) {
+      return res.status(400).json({
+        message: "minPrice cannot be greater than maxPrice."
+      });
+    }
+
+    let isAvailable;
+    if (isAvailableQuery !== undefined) {
+      if (
+        isAvailableQuery !== "true" &&
+        isAvailableQuery !== "false"
+      ) {
+        return res.status(400).json({
+          message: "isAvailable must be true or false.",
+          field: "isAvailable"
+        });
+      }
+
+      isAvailable = isAvailableQuery === "true";
+    }
+
+    const sortBy = sortByQuery ?? "id";
+    const order = orderQuery ?? "asc";
+
+    if (
+      typeof sortBy !== "string" ||
+      !allowedSortFields.includes(sortBy)
+    ) {
+      return res.status(400).json({
+        message: "Invalid sortBy field.",
+        field: "sortBy"
+      });
+    }
+
+    if (
+      typeof order !== "string" ||
+      !["asc", "desc"].includes(order)
+    ) {
+      return res.status(400).json({
+        message: "Order must be asc or desc.",
+        field: "order"
+      });
+    }
+
+    // Build database filters
+    const where = {};
+
+    if (search !== undefined) {
+      where.title = {
+        contains: search.trim(),
+        mode: "insensitive"
+      };
+    }
+
+    if (categoryId !== undefined) {
+      where.categoryId = categoryId;
+    }
+
+    if (brandId !== undefined) {
+      where.brandId = brandId;
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      where.price = {};
+
+      if (minPrice !== undefined) {
+        where.price.gte = minPrice;
+      }
+
+      if (maxPrice !== undefined) {
+        where.price.lte = maxPrice;
+      }
+    }
+
+    if (isAvailable !== undefined) {
+      where.isAvailable = isAvailable;
+    }
+
     const skip = (page - 1) * limit;
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
+        where,
         skip,
         take: limit,
-        orderBy: { id: "asc" },
+        orderBy: {
+          [sortBy]: order
+        },
         include: {
           category: true,
           brand: true,
@@ -249,7 +431,9 @@ export const getProducts = async (req, res, next) => {
           }
         }
       }),
-      prisma.product.count()
+      prisma.product.count({
+        where
+      })
     ]);
 
     res.status(200).json({
