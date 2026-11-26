@@ -1,3 +1,4 @@
+
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -20,9 +21,9 @@ const brands = [
 ];
 
 const books = [
-  ["Монголын нууц товчоо", "9789919000001", 25000, 20, 1240, 320, 2, 1],
+  ["Монголын нууц товчоо", "9789919000001", 25000, 20, 1990, 320, 2, 1],
   ["Цагаан бороо", "9789919000002", 18000, 15, 2020, 210, 1, 1],
-  ["Алтан товч", "9789919000003", 22000, 10, 1651, 250, 2, 2],
+  ["Алтан товч", "9789919000003", 22000, 10, 2009, 250, 2, 2],
   ["Дэлхийн түүх", "9789919000004", 35000, 12, 2022, 400, 2, 3],
   ["Шинжлэх ухааны гайхамшиг", "9789919000005", 28000, 8, 2023, 280, 3, 4],
   ["Хүүхдийн үлгэрүүд", "9789919000006", 15000, 30, 2021, 100, 4, 2],
@@ -78,24 +79,43 @@ async function main() {
   const productRecords = [];
 
   for (let i = 0; i < books.length; i++) {
-    const [title, isbn, price, stock, year, pages, categoryIndex, brandIndex] = books[i];
+    const [
+      title,
+      isbn,
+      price,
+      stock,
+      year,
+      pages,
+      categoryIndex,
+      brandIndex
+    ] = books[i];
+
+    const categoryId =
+      categoryRecords[categories[categoryIndex - 1]].id;
+
+    const brandId =
+      i >= 22
+        ? null
+        : brandRecords[brands[brandIndex - 1].name].id;
+
+    const productData = {
+      title,
+      price,
+      stock,
+      publishedYear: year,
+      pages,
+      description: `${title} номын тайлбар.`,
+      isAvailable: stock > 0,
+      categoryId,
+      brandId
+    };
 
     const product = await prisma.product.upsert({
       where: { isbn },
-      update: {},
+      update: productData,
       create: {
-        title,
-        isbn,
-        price,
-        stock,
-        publishedYear: year,
-        pages,
-        description: `${title} номын тайлбар.`,
-        isAvailable: stock > 0,
-        categoryId: categoryRecords[categories[categoryIndex - 1]].id,
-        brandId: i >= 22
-          ? null
-          : brandRecords[brands[brandIndex - 1].name].id
+        ...productData,
+        isbn
       }
     });
 
@@ -110,6 +130,10 @@ async function main() {
       const authorName = authors[j];
       const productId = productRecords[i].id;
 
+      const rating = ((i + j) % 5) + 1;
+      const comment =
+        "Сонирхолтой, уншихад үнэ цэнтэй ном.";
+
       await prisma.review.upsert({
         where: {
           authorName_productId: {
@@ -117,18 +141,29 @@ async function main() {
             productId
           }
         },
-        update: {},
+        update: {
+          rating,
+          comment
+        },
         create: {
           authorName,
           productId,
-          rating: ((i + j) % 5) + 1,
-          comment: "Сонирхолтой, уншихад үнэ цэнтэй ном."
+          rating,
+          comment
         }
       });
     }
   }
 
   console.log("Seed completed successfully!");
+
+  console.log({
+    categories: categories.length,
+    brands: brands.length,
+    products: books.length,
+    reviews: 20 * authors.length,
+    productsWithoutBrand: 3
+  });
 }
 
 main()
