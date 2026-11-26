@@ -1,2573 +1,1679 @@
 {
   "info": {
-    "name": "nomiin-delguur-api",
+    "name": "Book Store API (nomiin-delguur-api)",
+    "description": "Book Store API-ийн бодит эх код дээр суурилсан Postman Collection (Categories, Brands, Products, Reviews, Health болон 400/404/409 error тестүүд).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:3000"
-    },
-    {
-      "key": "newCategoryId",
-      "value": ""
-    },
-    {
-      "key": "newBrandId",
-      "value": ""
-    },
-    {
-      "key": "newProductId",
-      "value": ""
-    },
-    {
-      "key": "newReviewId",
-      "value": ""
-    },
-    {
-      "key": "tempReviewId",
-      "value": ""
-    }
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "categoryId", "value": "1" },
+    { "key": "brandId", "value": "1" },
+    { "key": "productId", "value": "1" },
+    { "key": "reviewId", "value": "1" },
+    { "key": "createdCategoryId", "value": "" },
+    { "key": "createdBrandId", "value": "" },
+    { "key": "createdProductId", "value": "" },
+    { "key": "createdReviewId", "value": "" },
+    { "key": "testIsbn", "value": "9789919999001" },
+    { "key": "testAuthor", "value": "Test Reader" }
   ],
   "item": [
     {
-      "name": "0. Health ба 404",
+      "name": "01 - Health",
       "item": [
         {
-          "name": "Health",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
-              }
-            }
-          ],
+          "name": "GET Health",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "health"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
             }
-          }
-        },
-        {
-          "name": "ERR Байхгүй хаяг",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Health status is ok\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.status).to.eql(\"ok\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/abc",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "abc"
-              ]
-            }
-          }
+          ]
         }
       ]
     },
     {
-      "name": "1. Categories",
+      "name": "02 - Categories",
       "item": [
         {
-          "name": "Категориудын жагсаалт",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
-              }
-            }
-          ],
+          "name": "GET Categories",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Нэг категори (номын тоотой)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/categories/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Категори үүсгэх",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });",
-                  "pm.collectionVariables.set(\"newCategoryId\", pm.response.json().id);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Тест ангилал {{$timestamp}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Категори засах",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/categories/{{newCategoryId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "{{newCategoryId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Засагдсан ангилал {{$timestamp}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Категориор номын жагсаалт",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/categories/1/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "1",
-                "products"
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR Нэр давхцсан",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 409\", function () { pm.response.to.have.status(409); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Уран зохиол\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "ERR Жагсаалт page=abc",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/categories?page=abc",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories"
-              ],
+              "raw": "{{baseUrl}}/categories?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"],
               "query": [
-                {
-                  "key": "page",
-                  "value": "abc"
-                }
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
               ]
             }
-          }
-        },
-        {
-          "name": "ERR PATCH id тоо биш",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Categories data and meta structure\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.data).to.be.an(\"array\");",
+                  "    pm.expect(body.meta).to.be.an(\"object\");",
+                  "    pm.expect(body.meta).to.have.property(\"total\");",
+                  "    if (body.data.length > 0) {",
+                  "        pm.collectionVariables.set(\"categoryId\", String(body.data[0].id));",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/categories/abc",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "abc"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"x\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
+          ]
         },
         {
-          "name": "ERR PATCH байхгүй id",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/categories/99999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "99999"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"x\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "ERR PATCH нэр давхцсан",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 409\", function () { pm.response.to.have.status(409); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/categories/{{newCategoryId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "{{newCategoryId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Уран зохиол\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "ERR Байхгүй категори устгах",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/categories/99999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "99999"
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR Категорийн номууд: id тоо биш",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
+          "name": "GET Category by ID",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/categories/abc/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "abc",
-                "products"
-              ]
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{categoryId}}"]
             }
-          }
-        },
-        {
-          "name": "ERR Категорийн номууд: байхгүй id",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Category object returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.data).to.have.property(\"id\");",
+                  "    pm.expect(body.data).to.have.property(\"name\");",
+                  "    pm.expect(body.data).to.have.property(\"_count\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/categories/99999/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "99999",
-                "products"
-              ]
-            }
-          }
+          ]
         },
         {
-          "name": "ERR Хоосон нэр",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
+          "name": "POST Category",
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
-            "url": {
-              "raw": "{{baseUrl}}/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories"
-              ]
-            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"   \"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "ERR id тоо биш",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
+              "raw": "{\n  \"name\": \"QA Test Category\"\n}"
+            },
             "url": {
-              "raw": "{{baseUrl}}/categories/abc",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "abc"
-              ]
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
             }
-          }
-        },
-        {
-          "name": "ERR Байхгүй id",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    pm.test(\"Created category and save ID\", function () {",
+                  "        const body = pm.response.json();",
+                  "        pm.expect(body.data.name).to.eql(\"QA Test Category\");",
+                  "        pm.collectionVariables.set(\"createdCategoryId\", String(body.data.id));",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "PATCH Category",
           "request": {
-            "method": "GET",
-            "header": [],
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"QA Updated Category\"\n}"
+            },
             "url": {
-              "raw": "{{baseUrl}}/categories/99999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "99999"
-              ]
+              "raw": "{{baseUrl}}/categories/{{createdCategoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{createdCategoryId}}"]
             }
-          }
-        },
-        {
-          "name": "ERR Номтой категори устгах",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 409\", function () { pm.response.to.have.status(409); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Category name updated\", function () {",
+                  "        const body = pm.response.json();",
+                  "        pm.expect(body.data.name).to.eql(\"QA Updated Category\");",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "DELETE Created Category",
           "request": {
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/categories/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "1"
-              ]
+              "raw": "{{baseUrl}}/categories/{{createdCategoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{createdCategoryId}}"]
             }
-          }
-        },
-        {
-          "name": "Хоосон категори устгах",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 204\", function () { pm.response.to.have.status(204); });"
-                ]
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/categories/{{newCategoryId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "{{newCategoryId}}"
-              ]
-            }
-          }
+          ]
         }
       ]
     },
     {
-      "name": "2. Brands",
+      "name": "03 - Brands",
       "item": [
         {
-          "name": "Хэвлэлийн газрын жагсаалт",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
-              }
-            }
-          ],
+          "name": "GET Brands",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/brands?page=1&limit=5",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands"
-              ],
+              "raw": "{{baseUrl}}/brands?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands"],
               "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "5"
-                }
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
               ]
             }
-          }
-        },
-        {
-          "name": "Нэг хэвлэлийн газар",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Brands list returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.data).to.be.an(\"array\");",
+                  "    pm.expect(body.meta).to.be.an(\"object\");",
+                  "    if (body.data.length > 0) {",
+                  "        pm.collectionVariables.set(\"brandId\", String(body.data[0].id));",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/brands/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands",
-                "1"
-              ]
-            }
-          }
+          ]
         },
         {
-          "name": "Хэвлэлийн газар үүсгэх",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });",
-                  "pm.collectionVariables.set(\"newBrandId\", pm.response.json().id);"
-                ]
-              }
-            }
-          ],
+          "name": "POST Brand",
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"QA Press\",\n  \"country\": \"Mongolia\"\n}"
+            },
             "url": {
               "raw": "{{baseUrl}}/brands",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Тест хэвлэл {{$timestamp}}\",\n  \"foundedYear\": 2001\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "host": ["{{baseUrl}}"],
+              "path": ["brands"]
             }
-          }
-        },
-        {
-          "name": "Хэвлэлийн газар засах",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    pm.test(\"Created brand and save ID\", function () {",
+                  "        const body = pm.response.json();",
+                  "        pm.expect(body.data.name).to.eql(\"QA Press\");",
+                  "        pm.collectionVariables.set(\"createdBrandId\", String(body.data.id));",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/brands/{{newBrandId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands",
-                "{{newBrandId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"foundedYear\": 2005\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
+          ]
         },
         {
-          "name": "Хэвлэлийн газраар номын жагсаалт",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
-              }
-            }
-          ],
+          "name": "GET Created Brand by ID",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/brands/1/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands",
-                "1",
-                "products"
-              ]
+              "raw": "{{baseUrl}}/brands/{{createdBrandId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands", "{{createdBrandId}}"]
             }
-          }
-        },
-        {
-          "name": "ERR Model-д байхгүй талбар (id)",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Brand ID matches\", function () {",
+                  "        const body = pm.response.json();",
+                  "        pm.expect(body.data.id).to.eql(Number(pm.collectionVariables.get(\"createdBrandId\")));",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "PATCH Created Brand",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"country\": \"UK\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/brands/{{createdBrandId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands", "{{createdBrandId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Brand country updated\", function () {",
+                  "        const body = pm.response.json();",
+                  "        pm.expect(body.data.country).to.eql(\"UK\");",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE Created Brand",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/brands/{{createdBrandId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands", "{{createdBrandId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Products",
+      "item": [
+        {
+          "name": "POST Product",
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"QA Test Book\",\n  \"isbn\": \"{{testIsbn}}\",\n  \"price\": 25000,\n  \"stock\": 10,\n  \"publishedYear\": 2024,\n  \"pages\": 220,\n  \"description\": \"QA test book description.\",\n  \"isAvailable\": true,\n  \"categoryId\": {{categoryId}},\n  \"brandId\": {{brandId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    pm.test(\"Created product and save ID\", function () {",
+                  "        const body = pm.response.json();",
+                  "        pm.expect(body.data.title).to.eql(\"QA Test Book\");",
+                  "        pm.collectionVariables.set(\"createdProductId\", String(body.data.id));",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Created Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{createdProductId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "{{createdProductId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Relations category, brand, reviews included\", function () {",
+                  "        const body = pm.response.json();",
+                  "        pm.expect(body.data).to.have.property(\"category\");",
+                  "        pm.expect(body.data).to.have.property(\"brand\");",
+                  "        pm.expect(body.data).to.have.property(\"reviews\");",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH Created Product",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 28000,\n  \"stock\": 15\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{createdProductId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "{{createdProductId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Product price updated\", function () {",
+                  "        const body = pm.response.json();",
+                  "        pm.expect(body.data.price).to.eql(28000);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE Created Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{createdProductId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "{{createdProductId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Product Filters",
+      "item": [
+        {
+          "name": "GET Products - search filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?search=түүх",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "search", "value": "түүх" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Search returns array\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.data).to.be.an(\"array\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Products - categoryId filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?categoryId={{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "categoryId", "value": "{{categoryId}}" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Filtered by categoryId\", function () {",
+                  "    const body = pm.response.json();",
+                  "    const expectedCatId = Number(pm.collectionVariables.get(\"categoryId\"));",
+                  "    body.data.forEach(item => pm.expect(item.categoryId).to.eql(expectedCatId));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Products - brandId filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?brandId={{brandId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "brandId", "value": "{{brandId}}" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Filtered by brandId\", function () {",
+                  "    const body = pm.response.json();",
+                  "    const expectedBrandId = Number(pm.collectionVariables.get(\"brandId\"));",
+                  "    body.data.forEach(item => pm.expect(item.brandId).to.eql(expectedBrandId));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Products - minPrice & maxPrice filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?minPrice=15000&maxPrice=30000",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "minPrice", "value": "15000" },
+                { "key": "maxPrice", "value": "30000" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Price within minPrice and maxPrice\", function () {",
+                  "    const body = pm.response.json();",
+                  "    body.data.forEach(item => {",
+                  "        pm.expect(item.price).to.be.at.least(15000);",
+                  "        pm.expect(item.price).to.be.at.most(30000);",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Products - isAvailable filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?isAvailable=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "isAvailable", "value": "true" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"All items have isAvailable=true\", function () {",
+                  "    const body = pm.response.json();",
+                  "    body.data.forEach(item => pm.expect(item.isAvailable).to.eql(true));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Products - sortBy, order & pagination",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?page=1&limit=5&sortBy=price&order=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "5" },
+                { "key": "sortBy", "value": "price" },
+                { "key": "order", "value": "desc" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Pagination and price desc order\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.meta.page).to.eql(1);",
+                  "    pm.expect(body.meta.limit).to.eql(5);",
+                  "    for (let i = 1; i < body.data.length; i++) {",
+                  "        pm.expect(body.data[i - 1].price).to.be.at.least(body.data[i].price);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 - Reviews",
+      "item": [
+        {
+          "name": "GET Reviews pagination",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews?page=1&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "5" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Reviews pagination meta returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.data).to.be.an(\"array\");",
+                  "    pm.expect(body.meta.page).to.eql(1);",
+                  "    pm.expect(body.meta.limit).to.eql(5);",
+                  "    if (body.data.length > 0) {",
+                  "        pm.collectionVariables.set(\"reviewId\", String(body.data[0].id));",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Good book.\",\n  \"authorName\": \"{{testAuthor}}\",\n  \"productId\": {{productId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    pm.test(\"Created review and save ID\", function () {",
+                  "        const body = pm.response.json();",
+                  "        pm.expect(body.data.rating).to.eql(5);",
+                  "        pm.collectionVariables.set(\"createdReviewId\", String(body.data.id));",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Created Review by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{createdReviewId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{createdReviewId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Review ID matches\", function () {",
+                  "        const body = pm.response.json();",
+                  "        pm.expect(body.data.id).to.eql(Number(pm.collectionVariables.get(\"createdReviewId\")));",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH Created Review",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Updated review.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{createdReviewId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{createdReviewId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Review rating updated\", function () {",
+                  "        const body = pm.response.json();",
+                  "        pm.expect(body.data.rating).to.eql(4);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE Created Review",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{createdReviewId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{createdReviewId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 - Validation Errors (400)",
+      "item": [
+        {
+          "name": "400 - Non-numeric category ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/abc",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "abc"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Invalid category ID message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"Invalid category ID.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "400 - Non-positive integer product ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/0",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "0"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Invalid product ID message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"Invalid product ID.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "400 - Missing required fields on POST product",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Missing fields book\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Required fields are missing message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"Required fields are missing.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "400 - Wrong data type on price",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Wrong price type\",\n  \"isbn\": \"9789919999111\",\n  \"price\": \"18000\",\n  \"stock\": 5,\n  \"publishedYear\": 2022,\n  \"pages\": 120,\n  \"categoryId\": {{categoryId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Error field is price\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.field).to.eql(\"price\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "400 - Unknown field on POST category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Category\",\n  \"extraField\": 123\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Unknown field message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"Unknown field in request body.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "400 - Rating out of range (6)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 6,\n  \"authorName\": \"Tester\",\n  \"productId\": {{productId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Error field is rating\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.field).to.eql(\"rating\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "400 - Invalid page or limit query",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?page=0&limit=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "limit", "value": "100" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Invalid page or limit message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"Invalid page or limit.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "400 - Empty string name on POST brand",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"   \"\n}"
+            },
             "url": {
               "raw": "{{baseUrl}}/brands",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": 5,\n  \"name\": \"Хууран\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "host": ["{{baseUrl}}"],
+              "path": ["brands"]
             }
-          }
-        },
-        {
-          "name": "ERR Байхгүй brand-ийн ном",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Error field is name\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.field).to.eql(\"name\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/brands/99999/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands",
-                "99999",
-                "products"
-              ]
-            }
-          }
+          ]
         },
         {
-          "name": "ERR Жагсаалт limit=0",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
+          "name": "400 - Invalid sortBy query parameter",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/brands?limit=0",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands"
-              ],
+              "raw": "{{baseUrl}}/products?sortBy=invalidField",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
               "query": [
-                {
-                  "key": "limit",
-                  "value": "0"
-                }
+                { "key": "sortBy", "value": "invalidField" }
               ]
             }
-          }
-        },
-        {
-          "name": "ERR Нэг brand: id тоо биш",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Error field is sortBy\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.field).to.eql(\"sortBy\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/brands/abc",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands",
-                "abc"
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR Нэг brand: байхгүй id",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/brands/99999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands",
-                "99999"
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR PATCH хоосон нэр",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/brands/{{newBrandId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands",
-                "{{newBrandId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"   \"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "ERR PATCH байхгүй id",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/brands/99999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands",
-                "99999"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"x\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "ERR Байхгүй brand устгах",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/brands/99999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands",
-                "99999"
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR Brand-ийн номууд: id тоо биш",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/brands/abc/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands",
-                "abc",
-                "products"
-              ]
-            }
-          }
+          ]
         }
       ]
     },
     {
-      "name": "3. Products",
+      "name": "08 - Not Found Errors (404)",
       "item": [
         {
-          "name": "Номын жагсаалт",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
-              }
-            }
-          ],
+          "name": "404 - Non-existent category ID",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ]
+              "raw": "{{baseUrl}}/categories/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "999999"]
             }
-          }
-        },
-        {
-          "name": "Хайлт + эрэмбэ",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Category not found message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"Category not found.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "404 - Non-existent brand ID",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/products?q=harry&sort=publishedYear&order=asc&limit=5",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ],
-              "query": [
-                {
-                  "key": "q",
-                  "value": "harry"
-                },
-                {
-                  "key": "sort",
-                  "value": "publishedYear"
-                },
-                {
-                  "key": "order",
-                  "value": "asc"
-                },
-                {
-                  "key": "limit",
-                  "value": "5"
-                }
-              ]
+              "raw": "{{baseUrl}}/brands/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands", "999999"]
             }
-          }
-        },
-        {
-          "name": "Он + боломжтой шүүлт",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Brand not found message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"Brand not found.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "404 - Non-existent product ID",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/products?minYear=1990&maxYear=2010&isAvailable=true",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ],
-              "query": [
-                {
-                  "key": "minYear",
-                  "value": "1990"
-                },
-                {
-                  "key": "maxYear",
-                  "value": "2010"
-                },
-                {
-                  "key": "isAvailable",
-                  "value": "true"
-                }
-              ]
+              "raw": "{{baseUrl}}/products/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "999999"]
             }
-          }
-        },
-        {
-          "name": "Хэвлэлийн газаргүй ном",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Product not found message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"Product not found.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "404 - Non-existent review ID",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/products?hasBrand=false",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ],
-              "query": [
-                {
-                  "key": "hasBrand",
-                  "value": "false"
-                }
-              ]
+              "raw": "{{baseUrl}}/reviews/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "999999"]
             }
-          }
-        },
-        {
-          "name": "Нэг ном",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Review not found message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"Review not found.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "1"
-              ]
-            }
-          }
+          ]
         },
         {
-          "name": "Ном үүсгэх",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });",
-                  "pm.collectionVariables.set(\"newProductId\", pm.response.json().id);"
-                ]
-              }
-            }
-          ],
+          "name": "404 - Non-existent foreign key (categoryId)",
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Missing category book\",\n  \"isbn\": \"9789919999222\",\n  \"price\": 20000,\n  \"stock\": 5,\n  \"publishedYear\": 2023,\n  \"pages\": 150,\n  \"categoryId\": 999999\n}"
+            },
             "url": {
               "raw": "{{baseUrl}}/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"Тест ном\",\n  \"author\": \"Тест Зохиолч\",\n  \"price\": 19.99,\n  \"pages\": 250,\n  \"publishedYear\": 2020,\n  \"description\": \"Postman-аар үүсгэсэн ном\",\n  \"isAvailable\": true,\n  \"categoryId\": 1,\n  \"brandId\": \"{{newBrandId}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "host": ["{{baseUrl}}"],
+              "path": ["products"]
             }
-          }
-        },
-        {
-          "name": "Ном засах (зөвхөн price)",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Error field is categoryId\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.field).to.eql(\"categoryId\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/products/{{newProductId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "{{newProductId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"price\": 24.5\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "ERR Он 1900-аас бага",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"Тест ном\",\n  \"author\": \"Тест Зохиолч\",\n  \"price\": 19.99,\n  \"pages\": 250,\n  \"publishedYear\": 1800,\n  \"description\": \"Postman-аар үүсгэсэн ном\",\n  \"isAvailable\": true,\n  \"categoryId\": 1,\n  \"brandId\": \"{{newBrandId}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "ERR Байхгүй categoryId",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"Тест ном\",\n  \"author\": \"Тест Зохиолч\",\n  \"price\": 19.99,\n  \"pages\": 250,\n  \"publishedYear\": 2020,\n  \"description\": \"Postman-аар үүсгэсэн ном\",\n  \"isAvailable\": true,\n  \"categoryId\": 99999,\n  \"brandId\": \"{{newBrandId}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "ERR limit=100",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products?limit=100",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ],
-              "query": [
-                {
-                  "key": "limit",
-                  "value": "100"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR sort=password",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products?sort=password",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ],
-              "query": [
-                {
-                  "key": "sort",
-                  "value": "password"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR page=0",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products?page=0",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR minYear > maxYear",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products?minYear=2020&maxYear=2000",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ],
-              "query": [
-                {
-                  "key": "minYear",
-                  "value": "2020"
-                },
-                {
-                  "key": "maxYear",
-                  "value": "2000"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR id тоо биш",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/abc",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "abc"
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR Байхгүй ном",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/99999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "99999"
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR PATCH pages сөрөг",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/products/{{newProductId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "{{newProductId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"pages\": -5\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "ERR PATCH байхгүй ном",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/products/99999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "99999"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"price\": 10\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "ERR Байхгүй ном устгах",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/99999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "99999"
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR Номын сэтгэгдэл: id тоо биш",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/abc/reviews",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "abc",
-                "reviews"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Crash шалгалт: body нь массив",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Server did not crash (status < 500)\", function () { pm.expect(pm.response.code).to.be.below(500); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/products",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "[]",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Crash шалгалт: маш том id",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Server did not crash (status < 500)\", function () { pm.expect(pm.response.code).to.be.below(500); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/99999999999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "99999999999"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Crash шалгалт: q хоёр удаа",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Server did not crash (status < 500)\", function () { pm.expect(pm.response.code).to.be.below(500); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products?q=a&q=b",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products"
-              ],
-              "query": [
-                {
-                  "key": "q",
-                  "value": "a"
-                },
-                {
-                  "key": "q",
-                  "value": "b"
-                }
-              ]
-            }
-          }
+          ]
         }
       ]
     },
     {
-      "name": "4. Reviews",
+      "name": "09 - Conflict Errors (409)",
       "item": [
         {
-          "name": "Номын сэтгэгдлүүд (rating-аар)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/1/reviews?sort=rating&order=desc",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "1",
-                "reviews"
-              ],
-              "query": [
-                {
-                  "key": "sort",
-                  "value": "rating"
-                },
-                {
-                  "key": "order",
-                  "value": "desc"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Сэтгэгдэл бичих",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });",
-                  "pm.collectionVariables.set(\"newReviewId\", pm.response.json().id);"
-                ]
-              }
-            }
-          ],
+          "name": "409 - Duplicate category name",
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
-            "url": {
-              "raw": "{{baseUrl}}/products/{{newProductId}}/reviews",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "{{newProductId}}",
-                "reviews"
-              ]
-            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Сайн ном\",\n  \"authorName\": \"Тест Хэрэглэгч\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "raw": "{\n  \"name\": \"Уран зохиол\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
             }
-          }
-        },
-        {
-          "name": "Сэтгэгдэл засах",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
-                ]
+                  "pm.test(\"Status code is 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Duplicate value conflict message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"This value already exists.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/reviews/{{newReviewId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reviews",
-                "{{newReviewId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"rating\": 4\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
+          ]
         },
         {
-          "name": "ERR Нэг хүн хоёр дахь удаа",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 409\", function () { pm.response.to.have.status(409); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
+          "name": "409 - Duplicate brand name",
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
-            "url": {
-              "raw": "{{baseUrl}}/products/{{newProductId}}/reviews",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "{{newProductId}}",
-                "reviews"
-              ]
-            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"rating\": 3,\n  \"authorName\": \"Тест Хэрэглэгч\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "raw": "{\n  \"name\": \"Монсудар\",\n  \"country\": \"Монгол\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/brands",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands"]
             }
-          }
-        },
-        {
-          "name": "ERR rating=7",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
+                  "pm.test(\"Status code is 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Duplicate brand conflict message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"This value already exists.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "409 - Duplicate product ISBN",
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
-            "url": {
-              "raw": "{{baseUrl}}/products/{{newProductId}}/reviews",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "{{newProductId}}",
-                "reviews"
-              ]
-            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"rating\": 7,\n  \"authorName\": \"Өөр Хүн\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "raw": "{\n  \"title\": \"Duplicate ISBN book\",\n  \"isbn\": \"9789919000001\",\n  \"price\": 25000,\n  \"stock\": 10,\n  \"publishedYear\": 2020,\n  \"pages\": 200,\n  \"categoryId\": {{categoryId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"]
             }
-          }
-        },
-        {
-          "name": "ERR Байхгүй сэтгэгдэл засах",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
+                  "pm.test(\"Status code is 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Duplicate ISBN conflict message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"This value already exists.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/reviews/99999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reviews",
-                "99999"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"rating\": 3\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
+          ]
         },
         {
-          "name": "ERR Байхгүй номд сэтгэгдэл бичих",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
+          "name": "409 - Duplicate review by same authorName and productId",
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
-            "url": {
-              "raw": "{{baseUrl}}/products/99999/reviews",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "99999",
-                "reviews"
-              ]
-            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"rating\": 3,\n  \"authorName\": \"Хэн нэгэн\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Duplicate review.\",\n  \"authorName\": \"Бат\",\n  \"productId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews"]
             }
-          }
-        },
-        {
-          "name": "ERR PATCH id тоо биш",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
+                  "pm.test(\"Status code is 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Duplicate review conflict message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"This value already exists.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/reviews/abc",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reviews",
-                "abc"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"rating\": 3\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
+          ]
         },
         {
-          "name": "Хоёр дахь сэтгэгдэл (устгах зорилгоор)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });",
-                  "pm.collectionVariables.set(\"tempReviewId\", pm.response.json().id);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/products/{{newProductId}}/reviews",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "{{newProductId}}",
-                "reviews"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"rating\": 2,\n  \"authorName\": \"Устгах Хүн\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Сэтгэгдэл устгах",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 204\", function () { pm.response.to.have.status(204); });"
-                ]
-              }
-            }
-          ],
+          "name": "409 - DELETE category with products",
           "request": {
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/reviews/{{tempReviewId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reviews",
-                "{{tempReviewId}}"
-              ]
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{categoryId}}"]
             }
-          }
-        },
-        {
-          "name": "ERR Байхгүй сэтгэгдэл устгах",
+          },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
+                  "pm.test(\"Status code is 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Category has products conflict message\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.eql(\"Cannot delete a category that has products.\");",
+                  "});"
+                ],
+                "type": "text/javascript"
               }
             }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/reviews/99999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reviews",
-                "99999"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "5. Устгалтын гурван дүрэм",
-      "item": [
-        {
-          "name": "Brand устгах (ном үлдэнэ)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 204\", function () { pm.response.to.have.status(204); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/brands/{{newBrandId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "brands",
-                "{{newBrandId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Ном үлдсэн, brand=null эсэхийг харах",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
-                  "pm.test(\"brand is null after brand deleted\", function () { pm.expect(pm.response.json().brand ?? null).to.eql(null); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/{{newProductId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "{{newProductId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Ном устгах (review хамт устна)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 204\", function () { pm.response.to.have.status(204); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/{{newProductId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "{{newProductId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "ERR Устсан номын review-ууд (404)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
-                  "pm.test(\"Error has message\", function () { pm.expect(pm.response.json()).to.have.property(\"message\"); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/products/{{newProductId}}/reviews",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "products",
-                "{{newProductId}}",
-                "reviews"
-              ]
-            }
-          }
+          ]
         }
       ]
     }
