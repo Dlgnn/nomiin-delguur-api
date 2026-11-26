@@ -14,7 +14,13 @@ export const errorHandler = (err, req, res, next) => {
       case "P2002":
         status = 409;
         message = "This value already exists.";
-        field = err.meta?.target;
+
+        if (Array.isArray(err.meta?.target)) {
+          field = err.meta.target.join(", ");
+        } else if (typeof err.meta?.target === "string") {
+          field = err.meta.target;
+        }
+
         break;
 
       case "P2003":
@@ -36,9 +42,7 @@ export const errorHandler = (err, req, res, next) => {
   const response = { message };
 
   if (field) {
-    response.field = Array.isArray(field)
-      ? field.join(", ")
-      : field;
+    response.field = field;
   }
 
   res.status(status).json(response);
