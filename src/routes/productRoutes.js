@@ -21,12 +21,14 @@ const router = Router();
  *       - Products
  *     parameters:
  *       - in: query
- *         name: page
+ *         name: minRating
+ *         required: false
  *         schema:
- *           type: integer
+ *           type: number
  *           minimum: 1
- *           default: 1
- *         description: Хуудасны дугаар
+ *           maximum: 5
+ *         description: Дундаж үнэлгээ нь энэ утгаас багагүй бүтээгдэхүүнүүдийг шүүнэ.
+ *         example: 4
  *       - in: query
  *         name: limit
  *         schema:
@@ -35,6 +37,7 @@ const router = Router();
  *           maximum: 50
  *           default: 10
  *         description: Нэг хуудсанд авах номын тоо
+ *         example: 4
  *       - in: query
  *         name: search
  *         schema:

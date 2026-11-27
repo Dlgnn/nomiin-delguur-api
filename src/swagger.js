@@ -65,7 +65,18 @@ const options = {
               nullable: true,
               example: 1
             },
-            createdAt: { type: "string", format: "date-time" }
+            createdAt: { type: "string", format: "date-time" },
+            averageRating: {
+              type: "number",
+              nullable: true,
+              example: 4.5,
+              description: "Бүтээгдэхүүний дундаж үнэлгээ. Үнэлгээ байхгүй бол null."
+            },
+            reviewCount: {
+              type: "integer",
+              example: 10,
+              description: "Нийт үнэлгээний тоо."
+            }
           }
         },
 
@@ -142,9 +153,9 @@ const options = {
   },
 
   apis: [
-  "./src/routes/*.js",
-  "./src/app.js"
-]
+    "./src/routes/*.js",
+    "./src/app.js"
+  ]
 };
 
 const swaggerSpec = swaggerJsdoc(options);

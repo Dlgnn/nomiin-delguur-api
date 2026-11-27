@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "seed": "prisma db seed"
+    "seed": "prisma db seed",
+    "openapi:generate": "node scripts/generate-openapi.js"
   },
   "devDependencies": {
     "nodemon": "^3.1.14",
@@ -16,6 +17,7 @@
     "dotenv": "^18.0.10",
     "express": "^5.3.0",
     "swagger-jsdoc": "^6.3.0",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "yaml": "^2.9.1"
   }
 }
